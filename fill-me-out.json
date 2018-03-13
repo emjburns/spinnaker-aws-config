@@ -1,0 +1,8 @@
+{
+	"AWS_ACCOUNT_NAME":"my-aws-account",
+	"AWS_VPC_NAME":"my-default-vpc",
+	"AWS_SUBNET_NAME":"my-default-subnet",
+	"MANAGING_ACCOUNT_ID":"",
+	"MANAGED_ACCOUNT_IDS": [],
+	"AUTH_TYPE":"role"
+}

@@ -3,8 +3,7 @@
     "Statement": [{
         "Action": "sts:AssumeRole",
         "Resource": [
-            "arn:aws:iam::${MANAGING_ACCOUNT_ID}:role/spinnakerManaged",
-            "arn:aws:iam::${MANAGED_ACCOUNT_ID}:role/spinnakerManaged"
+            "arn:aws:iam::MANAGING_ACCOUNT_ID:role/spinnakerManaged"MANAGED_ACCOUNT_ROLE_ARNS
         ],
         "Effect": "Allow"
     }]
