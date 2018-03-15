@@ -80,13 +80,12 @@ create_launched_instance_role(){
 
 create_auth_role(){
 	print_function_details
-	AUTH_ROLE_NAME=SpinnakerAuthRole
 
-	AUTH_ARN=$(aws iam create-role --role-name ${AUTH_ROLE_NAME} --assume-role-policy-document file://ec2-role-trust-policy.json | jq -r '.Role.Arn')
+	AUTH_ARN=$(aws iam create-role --role-name SpinnakerAuthRole --assume-role-policy-document file://ec2-role-trust-policy.json | jq -r '.Role.Arn')
 
-	aws iam attach-role-policy --role-name $AUTH_ROLE_NAME --policy-arn arn:aws:iam::aws:policy/PowerUserAccess 
+	aws iam attach-role-policy --role-name SpinnakerAuthRole --policy-arn arn:aws:iam::aws:policy/PowerUserAccess 
 
-	aws iam attach-role-policy --role-name $AUTH_ROLE_NAME --policy-arn $AWS_ASSUME_ROLE_POLICY_ARN
+	aws iam attach-role-policy --role-name SpinnakerAuthRole --policy-arn $AWS_ASSUME_ROLE_POLICY_ARN
 }
 
 create_auth_user(){
@@ -117,7 +116,7 @@ create_spinnakerManaged_role(){
 
 write_arns_to_file(){
 	print_function_details
-	touch arns.json
+	touch aws_arns.json
 	echo "{
 		\"AWS_VPC_ID\":\"$AWS_VPC_ID\",
 		\"AWS_SUBNET_ID\":\"$AWS_SUBNET_ID\",
@@ -130,8 +129,8 @@ write_arns_to_file(){
 		\"AWS_ASSUME_ROLE_POLICY_ARN\":\"$AWS_ASSUME_ROLE_POLICY_ARN\",
 		\"AWS_PASS_ROLE_POLICY_ARN\":\"$AWS_PASS_ROLE_POLICY_ARN\",
 		\"AWS_SPINNAKER_MANAGED_ROLE_ARN\":\"$AWS_SPINNAKER_MANAGED_ROLE_ARN\"
-	}" > arns.json
-	echo "Created resource ARNs stored in arns.json."
+	}" > aws_arns.json
+	echo "Created resource ARNs stored in aws_arns.json."
 }
 
 print_function_details(){
