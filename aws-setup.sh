@@ -144,22 +144,22 @@ print_error_and_exit(){
 }
 
 parse_user_input
-# update_json_files
-# create_vpc_and_subnet
-# create_keypair
-# create_policies
-# create_launched_instance_role
+update_json_files
+create_vpc_and_subnet
+create_keypair
+create_policies
+create_launched_instance_role
 
-# if [ "$AUTH_TYPE" == "ROLE" ]
-# then
-# 	create_auth_role
-# else if [ "$AUTH_TYPE" == "USER" ]
-# then
-# 	create_auth_user
-# else
-# 	print_error_and_exit "Invalid auth type. Chose ROLE or USER."
-# fi
+if [ "$AUTH_TYPE" == "ROLE" ]
+then
+	create_auth_role
+else if [ "$AUTH_TYPE" == "USER" ]
+then
+	create_auth_user
+else
+	print_error_and_exit "Invalid auth type. Chose ROLE or USER."
+fi
 
-# create_spinnakerManaged_role
+create_spinnakerManaged_role
 write_arns_to_file
 

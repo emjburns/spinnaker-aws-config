@@ -9,6 +9,7 @@ validate(){
 }
 
 delete_vpc_and_subnet(){
+	print_function_details
 	# Clean up VPC and Subnet
 	aws ec2 delete-subnet --subnet-id $(jq -r '.AWS_SUBNET_ID' aws_arns.json)
 	aws ec2 delete-route-table --route-table-id $(jq -r '.AWS_ROUTE_TABLE_ID' aws_arns.json)
@@ -21,6 +22,7 @@ delete_vpc_and_subnet(){
 }
 
 delete_policies_and_roles(){
+	print_function_details
 	# Clean up Policies
 	aws iam delete-policy --policy-name SpinnakerAssumeRolePolicy	
 	aws iam delete-policy --policy-name SpinnakerPassRole
