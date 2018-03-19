@@ -1,5 +1,4 @@
 #!/bin/bash
-# set -x 
 
 check_aws_connection(){
 	print_function_details
@@ -74,14 +73,16 @@ create_vpc_and_subnet(){
 
 	# Confirm route table is active
 	aws ec2 describe-route-tables --route-table-id $AWS_ROUTE_TABLE_ID
+	echo "Sleeping for 30 seconds."
 	sleep 30 # wait for things to propogate
-	AWS_RT_ASSOCIATION_ID=$(aws ec2 associate-route-table --subnet-id $AWS_SUBNET_ID --route-table-id $AWS_ROUTE_TABLE_ID | jq -r '.AssociationIds')
+
+	AWS_RT_ASSOCIATION_ID=$(aws ec2 associate-route-table --subnet-id $AWS_SUBNET_ID --route-table-id $AWS_ROUTE_TABLE_ID | jq -r '.AssociationId')
 	print_resource_creation $AWS_RT_ASSOCIATION_ID
 }
 
 create_keypair(){
 	print_function_details
-	export AWS_KEYPAIR_NAME=${AWS_ACCOUNT_NAME}-keypair
+	export AWS_KEYPAIR_NAME=${AWS_ACCOUNT_NAME}-${SPIN_TAG}-keypair
 	aws ec2 create-key-pair --key-name $AWS_KEYPAIR_NAME | jq -r '.KeyMaterial' > ${AWS_KEYPAIR_NAME}.pem
 	print_resource_creation $AWS_KEYPAIR_NAME
 	chmod 400 ${AWS_KEYPAIR_NAME}.pem
@@ -137,6 +138,11 @@ create_spinnakerManaged_role(){
 	print_function_details
 	AWS_SPINNAKER_MANAGED_ROLE_ARN=$(aws iam create-role --role-name spinnakerManaged --assume-role-policy-document file://ec2-role-trust-policy.json | jq -r '.Role.Arn')
 	print_resource_creation $AWS_SPINNAKER_MANAGED_ROLE_ARN
+
+	echo "Sleeping for 5 seconds."
+	sleep 5
+
+	aws iam attach-role-policy --role-name spinnakerManaged --policy-arn $AWS_PASS_ROLE_POLICY_ARN
 
 	aws iam update-assume-role-policy --role-name spinnakerManaged --policy-document file://spinnaker-trust-relationship.json
 }
@@ -194,4 +200,3 @@ fi
 
 create_spinnakerManaged_role
 write_arns_to_file
-

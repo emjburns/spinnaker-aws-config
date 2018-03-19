@@ -1,5 +1,4 @@
 #!/bin/bash
-# set -x 
 
 ARN_FILENAME=aws_arns.json
 
@@ -20,6 +19,7 @@ delete_vpc_and_subnet(){
 	aws ec2 detach-internet-gateway --internet-gateway-id $(jq -r '.AWS_INTERNET_GATEWAY_ID' aws_arns.json) --vpc-id $(jq -r '.AWS_VPC_ID' $ARN_FILENAME)
 	aws ec2 delete-internet-gateway --internet-gateway-id $(jq -r '.AWS_INTERNET_GATEWAY_ID' $ARN_FILENAME)
 
+	echo "Waiting 5 seconds for deletion."
 	sleep 5
 
 	aws ec2 delete-subnet --subnet-id $(jq -r '.AWS_SUBNET_ID' $ARN_FILENAME)
@@ -27,15 +27,33 @@ delete_vpc_and_subnet(){
 
 	# Clean up Keypair
 	aws ec2 delete-key-pair --key-name $(jq -r '.AWS_KEYPAIR_NAME' $ARN_FILENAME)
+	rm -rf $(jq -r '.AWS_KEYPAIR_NAME' $ARN_FILENAME)
 }
 
-delete_policies_and_roles(){
+delete_policies(){
 	print_function_details
-	# Clean up Policies
-	aws iam delete-policy --policy-arn $(jq -r '.AWS_ASSUME_ROLE_POLICY_ARN' $ARN_FILENAME)	
-	aws iam delete-policy --policy-arn $(jq -r '.AWS_PASS_ROLE_POLICY_ARN' $ARN_FILENAME)
+	set -x
 
+	AWS_ASSUME_ROLE_POLICY_ARN=$(jq -r '.AWS_ASSUME_ROLE_POLICY_ARN' $ARN_FILENAME)
+	AWS_PASS_ROLE_POLICY_ARN=$(jq -r '.AWS_PASS_ROLE_POLICY_ARN' $ARN_FILENAME)
+
+	# Detach policies before deleting them
+	aws iam detach-role-policy --role-name SpinnakerAuthRole --policy-arn $AWS_ASSUME_ROLE_POLICY_ARN
+
+	aws iam detach-role-policy --role-name spinnakerManaged --policy-arn $AWS_PASS_ROLE_POLICY_ARN
+
+	aws iam detach-role-policy --role-name SpinnakerAuthRole --policy-arn arn:aws:iam::aws:policy/PowerUserAccess
+
+	aws iam detach-role-policy --role-name spinnakerManaged --policy-arn arn:aws:iam::aws:policy/PowerUserAccess
+
+	# Delete Policies
+	aws iam delete-policy --policy-arn $AWS_ASSUME_ROLE_POLICY_ARN	
+	aws iam delete-policy --policy-arn $AWS_PASS_ROLE_POLICY_ARN
+}
+
+delete_roles(){
 	# Clean up Roles 
+	print_function_details
 	aws iam delete-role --role-name BaseIAMRole
 	aws iam delete-role --role-name SpinnakerAuthRole
 	aws iam delete-role --role-name spinnakerManaged
@@ -53,4 +71,5 @@ print_error_and_exit(){
 
 validate
 delete_vpc_and_subnet
-delete_policies_and_roles
+delete_policies
+delete_roles
