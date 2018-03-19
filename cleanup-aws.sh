@@ -22,7 +22,7 @@ delete_vpc_and_subnet(){
 	echo "Waiting 5 seconds for deletion."
 	sleep 5
 
-	aws ec2 delete-subnet --subnet-id $(jq -r '.AWS_SUBNET_ID' $ARN_FILENAME)
+	aws ec2 delete-subnet --subnet-id $(jq -r '.AWS_EXTERNAL_SUBNET_ID' $ARN_FILENAME)
 	aws ec2 delete-vpc --vpc-id $(jq -r '.AWS_VPC_ID' $ARN_FILENAME)
 
 	# Clean up Keypair

@@ -12,7 +12,7 @@ parse_user_input(){
 	print_function_details
 	AWS_ACCOUNT_NAME=$(jq -r '.AWS_ACCOUNT_NAME' fill-me-out.json)
 	AWS_VPC_NAME=$(jq -r '.AWS_VPC_NAME' fill-me-out.json)
-	AWS_SUBNET_NAME=$(jq -r '.AWS_SUBNET_NAME' fill-me-out.json)
+	AWS_REGION=$(jq -r '.AWS_REGION' fill-me-out.json)
 	MANAGING_ACCOUNT_ID=$(jq -r '.MANAGING_ACCOUNT_ID' fill-me-out.json)
 	AUTH_TYPE=$(jq -r '.AUTH_TYPE' fill-me-out.json)
 
@@ -52,11 +52,10 @@ create_vpc_and_subnet(){
 	aws ec2 create-tags --resource $AWS_VPC_ID --tags Key=name,Value=$AWS_VPC_NAME
 	aws ec2 create-tags --resource $AWS_VPC_ID --tags Key=name,Value=$SPIN_TAG
 
-	# Create and name single subnet
-	AWS_SUBNET_ID=$(aws ec2 create-subnet --vpc-id $AWS_VPC_ID --cidr-block 10.0.0.0/24 | jq -r '.Subnet.SubnetId')
-	print_resource_creation $AWS_SUBNET_ID
-	aws ec2 create-tags --resource $AWS_SUBNET_ID --tags Key=name,Value=$AWS_SUBNET_NAME
-	aws ec2 create-tags --resource $AWS_SUBNET_ID --tags Key=name,Value=$SPIN_TAG
+	# Create and name public subnet
+	AWS_EXTERNAL_SUBNET_ID=$(aws ec2 create-subnet --vpc-id $AWS_VPC_ID --cidr-block 10.0.0.0/24 | jq -r '.Subnet.SubnetId')
+	print_resource_creation $AWS_EXTERNAL_SUBNET_ID
+	aws ec2 create-tags --resource $AWS_EXTERNAL_SUBNET_ID --tags Key=name,Value=$AWS_VPC_NAME.external.$AWS_REGION
 
 	# Create and attach Internet Gateway 
 	AWS_INTERNET_GATEWAY_ID=$(aws ec2 create-internet-gateway | jq -r '.InternetGateway.InternetGatewayId')
@@ -76,7 +75,7 @@ create_vpc_and_subnet(){
 	echo "Sleeping for 30 seconds."
 	sleep 30 # wait for things to propogate
 
-	AWS_RT_ASSOCIATION_ID=$(aws ec2 associate-route-table --subnet-id $AWS_SUBNET_ID --route-table-id $AWS_ROUTE_TABLE_ID | jq -r '.AssociationId')
+	AWS_RT_ASSOCIATION_ID=$(aws ec2 associate-route-table --subnet-id $AWS_EXTERNAL_SUBNET_ID --route-table-id $AWS_ROUTE_TABLE_ID | jq -r '.AssociationId')
 	print_resource_creation $AWS_RT_ASSOCIATION_ID
 }
 
@@ -132,8 +131,6 @@ create_auth_user(){
 	# UNTESTED: community help requested
 }
 
-
-
 create_spinnakerManaged_role(){
 	print_function_details
 	AWS_SPINNAKER_MANAGED_ROLE_ARN=$(aws iam create-role --role-name spinnakerManaged --assume-role-policy-document file://ec2-role-trust-policy.json | jq -r '.Role.Arn')
@@ -153,7 +150,7 @@ write_arns_to_file(){
 	echo "{
 		\"SPIN_TAG\":\"$SPIN_TAG\",
 		\"AWS_VPC_ID\":\"$AWS_VPC_ID\",
-		\"AWS_SUBNET_ID\":\"$AWS_SUBNET_ID\",
+		\"AWS_EXTERNAL_SUBNET_ID\":\"$AWS_EXTERNAL_SUBNET_ID\",
 		\"AWS_INTERNET_GATEWAY_ID\":\"$AWS_INTERNET_GATEWAY_ID\",
 		\"AWS_ROUTE_TABLE_ID\":\"$AWS_ROUTE_TABLE_ID\",
 		\"AWS_RT_ASSOCIATION_ID\":\"$AWS_RT_ASSOCIATION_ID\",
