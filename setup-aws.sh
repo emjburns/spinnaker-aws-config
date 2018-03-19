@@ -149,7 +149,7 @@ create_spinnakerManaged_role(){
 
 write_arns_to_file(){
 	print_function_details
-	touch aws_arns.json
+	touch aws-arns.json
 	echo "{
 		\"SPIN_TAG\":\"$SPIN_TAG\",
 		\"AWS_VPC_ID\":\"$AWS_VPC_ID\",
@@ -163,8 +163,8 @@ write_arns_to_file(){
 		\"AWS_ASSUME_ROLE_POLICY_ARN\":\"$AWS_ASSUME_ROLE_POLICY_ARN\",
 		\"AWS_PASS_ROLE_POLICY_ARN\":\"$AWS_PASS_ROLE_POLICY_ARN\",
 		\"AWS_SPINNAKER_MANAGED_ROLE_ARN\":\"$AWS_SPINNAKER_MANAGED_ROLE_ARN\"
-	}" >> aws_arns.json
-	echo "Created resource ARNs stored in aws_arns.json."
+	}" >> aws-arns.json
+	echo "Created resource ARNs stored in aws-arns.json."
 }
 
 print_function_details(){

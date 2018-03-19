@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ARN_FILENAME=aws_arns.json
+ARN_FILENAME=aws-arns.json
 
 validate(){
 	print_function_details
