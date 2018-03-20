@@ -7,12 +7,17 @@ These steps must be completed before you can setup your aws account
 
 ### Environment
 You can set up AWS from your local machine or from an instance launched in your AWS account.
-You need these permissions:
+You need these permissions to set up AWS to run Spinnaker:
 ```
 	ec2:*
 	iam:*
 	sts:passRole
 	sts:AssumeRole
+```
+
+If you also want to run `halyard`, you'll need `s3` permissions:
+```
+	s3:*
 ```
 
 #### Set up local environment
