@@ -20,6 +20,31 @@ If you also want to run `halyard`, you'll need `s3` permissions:
 	s3:*
 ```
 
+AWS Inline Policy Example (no restrictions):
+```json
+{
+    "Statement": [
+        {
+            "Action": [
+                "iam:*",
+                "ec2:*",
+                "s3:*",
+                "sts:PassRole",
+                "sts:AssumeRole"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "*"
+            ]
+        }
+    ],
+    "Version": "2012-10-17"
+}
+```
+A policy giving you access to these resources should be attached to the instance profile you're running this script from. If you've already launched the instance, you can add permissions to the instance profile via the AWS Console.
+
+The permissions listed here are not all of the permissions needed to run Spinnaker. These permissions are just for preparing your aws environment. 
+
 #### Set up local environment
 
 If you're running locally, make sure that you've installed AWS and the credentials user or role that you are using has the required permissions (listed above). Set up the [aws cli](https://docs.aws.amazon.com/rekognition/latest/dg/setup-awscli.html).
